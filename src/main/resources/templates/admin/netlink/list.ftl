@@ -12,7 +12,7 @@
 <body>
 
 <div class="body-div">
-    <div>bridge端口：${conf.bridge_port}</div>
+    <div>项目名称：${conf.project_name!}</div>
     <div>
         原始信息
         <#list results as item>

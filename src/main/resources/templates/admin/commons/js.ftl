@@ -14,7 +14,7 @@
             w = '70%';
         }
         if (h == null || h == '') {
-            h = ($(window).height() - 50) + 'px'
+            h = ($(window).height() - 70) + 'px'
         }
         let index = layer.open({
             type: 2,
@@ -65,10 +65,8 @@
 
     // js的空判断
     function isBlank(val) {
-        if (val == undefined || val == '' || val.length == 0) {
-            return true;
-        }
-        return false;
+        return val == undefined || val == '' || val.length == 0;
+
     }
 
     function isNotBlank(val) {
