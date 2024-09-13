@@ -1,11 +1,16 @@
 package com.xxsword.xitem.admin.utils;
 
+import com.alibaba.fastjson2.JSON;
+import com.alibaba.fastjson2.JSONObject;
 import com.xxsword.xitem.admin.constant.Constant;
 import com.xxsword.xitem.admin.domain.system.entity.UserInfo;
 import org.apache.commons.lang3.StringUtils;
 
 import javax.servlet.http.HttpServletRequest;
+import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileReader;
+import java.io.IOException;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.security.MessageDigest;
@@ -249,6 +254,28 @@ public class Utils {
     public static String byteCountToDisplaySizeDecimal(long size) {
         int digitGroups = (int) (Math.log10(size) / Math.log10(1024));
         return new DecimalFormat("#.0").format(size / Math.pow(1024, digitGroups)) + " " + Constant.UNITS[digitGroups];
+    }
+
+    /**
+     * 获取配置信息
+     *
+     * @return
+     */
+    public static JSONObject getConf() {
+        String filePath = UpLoadUtil.getProjectPath() + UpLoadUtil.PATH_INFO + "/proxyweb.json";
+        try (BufferedReader reader = new BufferedReader(new FileReader(filePath))) {
+            // 读取文件内容到字符串中
+            StringBuilder contentBuilder = new StringBuilder();
+            String currentLine;
+            while ((currentLine = reader.readLine()) != null) {
+                contentBuilder.append(currentLine);
+            }
+            String content = contentBuilder.toString();
+            return JSON.parseObject(content);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return null;
     }
 
 //    public static void main(String[] args) {

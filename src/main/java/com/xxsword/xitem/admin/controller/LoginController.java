@@ -4,17 +4,12 @@ import com.xxsword.xitem.admin.constant.Constant;
 import com.xxsword.xitem.admin.domain.system.entity.UserInfo;
 import com.xxsword.xitem.admin.model.Codes;
 import com.xxsword.xitem.admin.model.RestResult;
-import com.xxsword.xitem.admin.utils.CaptchaUtils;
-import com.xxsword.xitem.admin.utils.CommandUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import java.io.BufferedReader;
-import java.io.InputStreamReader;
 
 @Controller
 @Slf4j
@@ -52,15 +47,8 @@ public class LoginController extends BaseController {
         return RestResult.Codes(Codes.LOGIN_OK);
     }
 
-    @RequestMapping("test2024")
-    @ResponseBody
-    public RestResult test2024(HttpServletRequest request) {
-        ps();
-        return RestResult.OK();
-    }
-
-    public static void ps() {
-        String command = "ps -eo pid,ppid,cmd | grep proxy";
-        String ret = CommandUtils.comm(command);
-    }
+//    public static void ps() {
+//        String command = "ps -eo pid,ppid,cmd | grep proxy";
+//        List<String> ret = CommandUtils.comm(command);
+//    }
 }

@@ -1,3 +1,4 @@
+<script type="text/javascript" src="${ctx.contextPath}/static/plugins/jquery/jquery.min.js"></script>
 <script type="text/javascript" src="${ctx.contextPath}/static/plugins/jquery-cookie/jquery.cookie.js"></script>
 <script type="text/javascript" src="${ctx.contextPath}/static/plugins/layer-3.5.1/layer.js"></script>
 <script type="text/javascript" src="${ctx.contextPath}/static/plugins/My97DatePicker/WdatePicker.js"></script>
@@ -10,7 +11,7 @@
             title = false;
         }
         if (w == null || w == '') {
-            w = '79%';
+            w = '70%';
         }
         if (h == null || h == '') {
             h = ($(window).height() - 50) + 'px'
