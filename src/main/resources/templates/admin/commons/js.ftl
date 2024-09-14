@@ -2,11 +2,9 @@
 <script type="text/javascript" src="${ctx.contextPath}/static/plugins/jquery-cookie/jquery.cookie.js"></script>
 <script type="text/javascript" src="${ctx.contextPath}/static/plugins/layer-3.5.1/layer.js"></script>
 <script type="text/javascript" src="${ctx.contextPath}/static/plugins/My97DatePicker/WdatePicker.js"></script>
-<script type="text/javascript"> var contextPath = '${ctx.contextPath}';</script>
 <script type="text/javascript">
-
     // 打开弹出层 参数解释： title 标题 url 请求的url w 弹出层宽度（缺省调默认值） h 弹出层高度（缺省调默认值） full 弹出是否立即全屏
-    function layer_show(title, url, w, h, full, closeBtn) {
+    function layer_show(title, url, w, h, full) {
         if (title == null || title == '') {
             title = false;
         }
@@ -21,8 +19,7 @@
             area: [w, h],
             shadeClose: false,// 点击遮罩区域，关闭弹层
             title: title,
-            content: url,
-            closeBtn: closeBtn
+            content: url
         });
         if (full) {
             layer.full(index);
@@ -32,8 +29,7 @@
 
     /* 关闭弹出层 */
     function layer_close() {
-        let index = parent.layer.getFrameIndex(window.name);
-        parent.layer.close(index);
+        parent.layer.close(parent.layer.getFrameIndex(window.name));
     }
 
     function getSelectionId() {
@@ -66,7 +62,6 @@
     // js的空判断
     function isBlank(val) {
         return val == undefined || val == '' || val.length == 0;
-
     }
 
     function isNotBlank(val) {

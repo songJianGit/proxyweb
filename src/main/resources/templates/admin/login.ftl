@@ -4,16 +4,20 @@
     <#include "commons/head.ftl"/>
     <style>
         .login-form {
-            width: 500px;
+            width: 300px;
             margin: 0 auto;
             line-height: 37px;
+        }
+        .label-w {
+            display: inline-block;
+            width: 53px;
         }
     </style>
 </head>
 <body>
 <form action="#!" method="post" class="login-form">
-    <div><label for="loginName">登录名</label><input id="loginName" type="text"/></div>
-    <div><label for="passWord">密码</label><input id="passWord" type="password"/></div>
+    <div><label for="loginName" class="label-w">登录名</label><input id="loginName" type="text" maxlength="100"/></div>
+    <div><label for="passWord" class="label-w">密码</label><input id="passWord" type="password" maxlength="100"/></div>
     <div>
         <button type="button" id="logBtn">登录</button>
     </div>
@@ -47,7 +51,7 @@
                 },
                 success: function (data) {
                     if (data.result) {
-                        window.location.href = '${ctx.contextPath}/admin/system/index';
+                        window.location.href = '${ctx.contextPath}/admin/netlink/list';
                     } else {
                         layer.msg(data.msg);
                     }
@@ -58,7 +62,6 @@
 
     function isBlank_login(val) {
         return val == undefined || val == '' || val.length == 0;
-
     }
 </script>
 </body>

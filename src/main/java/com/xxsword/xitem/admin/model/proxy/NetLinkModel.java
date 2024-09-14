@@ -9,4 +9,5 @@ public class NetLinkModel {
     private String bridgeIp;// bridge的IP
     private Integer bridgePort;// bridge的端口
     private String k;// 客户端标识
+    private String notes;// 备注
 }

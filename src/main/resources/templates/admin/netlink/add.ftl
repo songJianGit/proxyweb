@@ -18,27 +18,31 @@
     <div>
         <div class="line-div">
             <label for="serverPort">服务器监听端口</label>
-            <input id="serverPort" placeholder="服务器监听端口" type="number"/>
+            <input id="serverPort" placeholder="服务器监听端口" type="number"/>*
         </div>
         <div class="line-div">
             <label for="clientPort">客户端穿透端口</label>
-            <input id="clientPort" placeholder="客户端穿透端口" type="number"/>
+            <input id="clientPort" placeholder="客户端穿透端口" type="number"/>*
         </div>
         <div class="line-div">
             <label for="bridgeIp">bridgeIp</label>
-            <input id="bridgeIp" placeholder="bridgeIp" type="text" maxlength="20"/>
+            <input id="bridgeIp" placeholder="bridgeIp" type="text" maxlength="20"/>*
         </div>
         <div class="line-div">
             <label for="bridgePort">bridgePort</label>
-            <input id="bridgePort" placeholder="bridgePort" type="number"/>
+            <input id="bridgePort" placeholder="bridgePort" type="number"/>*
         </div>
         <div class="line-div">
             <label for="k">客户端标识</label>
-            <input id="k" placeholder="客户端标识" type="text" maxlength="100"/>
+            <input id="k" placeholder="客户端标识" type="text" maxlength="100"/>*
+        </div>
+        <div class="line-div">
+            <label for="notes">备注</label>
+            <input id="notes" placeholder="备注" type="text" maxlength="200"/>
         </div>
     </div>
     <div class="line-div">
-        <button type="button" onclick="addBtn()">新增穿透</button>
+        <button type="button" onclick="addBtn()">保存</button>
     </div>
 </div>
 <#include "../commons/js.ftl"/>
@@ -49,6 +53,7 @@
         let bridgeIp = $("#bridgeIp").val();
         let bridgePort = $("#bridgePort").val();
         let k = $("#k").val();
+        let notes = $("#notes").val();
         if (isBlank(serverPort)) {
             layer.msg("请填写服务器监听端口");
             return false;
@@ -77,10 +82,12 @@
                 clientPort: clientPort,
                 bridgeIp: bridgeIp,
                 bridgePort: bridgePort,
-                k: k
+                k: k,
+                notes: notes
             },
             success: function (data) {
-                layer.msg(data.msg);
+                parent.reloadData();
+                // layer_close();
             }
         });
     }

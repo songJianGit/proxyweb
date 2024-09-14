@@ -1,9 +1,11 @@
 package com.xxsword.xitem.admin.controller;
 
+import com.alibaba.fastjson2.JSONObject;
 import com.xxsword.xitem.admin.constant.Constant;
 import com.xxsword.xitem.admin.domain.system.entity.UserInfo;
 import com.xxsword.xitem.admin.model.Codes;
 import com.xxsword.xitem.admin.model.RestResult;
+import com.xxsword.xitem.admin.utils.JSONFileUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Controller;
@@ -40,15 +42,20 @@ public class LoginController extends BaseController {
         if (StringUtils.isBlank(loginName)) {
             return RestResult.Codes(Codes.LOGIN_FAIL);
         }
-        UserInfo userInfo = new UserInfo();
-        userInfo.setLoginName(loginName);
-        userInfo.setPassword(passWord);
-        request.getSession().setAttribute(Constant.USER_INFO, userInfo);
-        return RestResult.Codes(Codes.LOGIN_OK);
+        if (StringUtils.isBlank(passWord)) {
+            return RestResult.Codes(Codes.LOGIN_FAIL);
+        }
+        JSONObject jsonObject = JSONFileUtil.getConf();
+        String name = jsonObject.getString("user_login_name");
+        String pwd = jsonObject.getString("user_password");
+        if (name.equals(loginName) && passWord.equals(pwd)) {
+            UserInfo userInfo = new UserInfo();
+            userInfo.setLoginName(loginName);
+            userInfo.setPassword(passWord);
+            request.getSession().setAttribute(Constant.USER_INFO, userInfo);
+            return RestResult.Codes(Codes.LOGIN_OK);
+        }
+        return RestResult.Codes(Codes.LOGIN_FAIL);
     }
 
-//    public static void ps() {
-//        String command = "ps -eo pid,ppid,cmd | grep proxy";
-//        List<String> ret = CommandUtils.comm(command);
-//    }
 }

@@ -1,9 +1,11 @@
 package com.xxsword.xitem.admin.utils;
 
+import com.xxsword.xitem.admin.config.SystemConfig;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 
 import java.io.BufferedReader;
+import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -11,16 +13,48 @@ import java.util.List;
 
 @Slf4j
 public class CommandUtils {
+    public static List<String> comm(String command) {
+        return comm(command, false);
+    }
+
     /**
      * 执行命令
      *
      * @param command
+     * @param asyn    是否异步
      * @return
      */
-    public static List<String> comm(String command) {
+    public static List<String> comm(String command, boolean asyn) {
+        if ("true".equalsIgnoreCase(SystemConfig.getProperty("command.test.flag"))) {
+            return ceShi();
+        }
         if (StringUtils.isBlank(command)) {
             return null;
         }
+        if (asyn) {
+            asyn(command);
+            return null;
+        } else {
+            return wait(command);
+        }
+    }
+
+    private static void asyn(String command) {
+        try {
+            // 创建 ProcessBuilder 实例
+            ProcessBuilder pb = new ProcessBuilder("/bin/bash", "-c", command);
+            // 启动子进程
+            Process process = pb.start();
+            // 可选：关闭输入流和错误流，以避免占用资源
+            process.getInputStream().close();
+            process.getErrorStream().close();
+            log.info("Command executed:{}", command);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private static List<String> wait(String command) {
         try {
             // 使用Runtime来执行命令
 //            Process process = Runtime.getRuntime().exec(command);
@@ -43,9 +77,9 @@ public class CommandUtils {
             // 等待进程结束，并获取退出码
             int exitVal = process.waitFor();
             if (exitVal == 0) {
-                log.info("Command executed successfully.");
+                log.info("Command executed successfully:{}", command);
             } else {
-                log.warn("Command execution failed with exit code: " + exitVal);
+                log.warn("Command execution failed with exit code: {},command:{}", exitVal, command);
             }
             return stringList;
         } catch (Exception e) {
@@ -88,4 +122,6 @@ public class CommandUtils {
         }
         return list2;
     }
+
+
 }
