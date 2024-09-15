@@ -49,14 +49,35 @@ public class NetLinkController extends BaseController {
         return "/admin/netlink/edit";
     }
 
+    @RequestMapping("editBridge")
+    public String editBridge(HttpServletRequest request) {
+        return "/admin/netlink/editbridge";
+    }
+
+    @RequestMapping("saveBridge")
+    @ResponseBody
+    public RestResult saveBridge(HttpServletRequest request, NetLinkModel netLink) {
+        return runCommAndSaveDB(ProxyUtils.getProxyBridgeStart(netLink), netLink);
+    }
+
     @RequestMapping("save")
     @ResponseBody
     public RestResult save(HttpServletRequest request, NetLinkModel netLink) {
-        String comm = ProxyUtils.getProxyServerStart(netLink);
+        return runCommAndSaveDB(ProxyUtils.getProxyServerStart(netLink), netLink);
+    }
+
+    /**
+     * 运行命令，并记录DB信息
+     *
+     * @param comm
+     * @param netLink
+     * @return
+     */
+    private static RestResult runCommAndSaveDB(String comm, NetLinkModel netLink) {
         if (StringUtils.isBlank(netLink.getKey())) {
             CommandUtils.comm(comm, true);// key为空时，为新增，直接运行；key有值时为复制，不运行。
         }
-        String cmd_comm = comm.replaceAll(" --daemon", "");// ps的时候，没有这个参数，这里去掉再做md5
+        String cmd_comm = comm.replaceAll(" --daemon", "").replaceAll("\"", "");
         ProxyUtils.setDBComm(Utils.getMD5(cmd_comm), netLink, comm);
         return RestResult.OK();
     }

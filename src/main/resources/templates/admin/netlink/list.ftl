@@ -27,8 +27,9 @@
 
 <div class="body-div">
     <div class="border-div">项目名称：${conf.project_name!}</div>
-    <div>
-        <button type="button" onclick="addBtn()">新增穿透</button>
+    <div class="border-div">
+        <button type="button" onclick="addBridgeBtn()">新增bridge</button>
+        <button type="button" onclick="addBtn()">新增server</button>
     </div>
     <div class="border-div">
         控制台进程信息
@@ -70,10 +71,10 @@
                 <p>
                     <button type="button" onclick="editBtnNotes('${db.comm.key!}')">编辑备注</button>
                     <button type="button" onclick="copyBtn('${db.comm.key!}')">复制</button>
-                    <#if db.delBtn==1>
+                    <#if db.runFlag==0>
                         <button type="button" onclick="delBtn('${db.comm.key!}')">删除</button>
+                        <button type="button" onclick="runBtn('${db.comm.key!}')">运行命令</button>
                     </#if>
-                    <button type="button" onclick="runBtn('${db.comm.key!}')">运行命令</button>
                 </p>
             </div>
         </#list>
@@ -84,6 +85,10 @@
 <script type="text/javascript">
     function addBtn() {
         layer_show('新增', '${ctx.contextPath}/admin/netlink/edit');
+    }
+
+    function addBridgeBtn() {
+        layer_show('新增', '${ctx.contextPath}/admin/netlink/editBridge');
     }
 
     function copyBtn(key) {
@@ -106,7 +111,6 @@
                     key: key
                 },
                 success: function (data) {
-                    // layer.msg(data.msg);
                     reloadData();
                 }
             });
@@ -127,7 +131,6 @@
                     key: key
                 },
                 success: function (data) {
-                    // layer.msg(data.msg);
                     reloadData();
                 }
             });
@@ -148,7 +151,6 @@
                     key: key
                 },
                 success: function (data) {
-                    // layer.msg(data.msg);
                     reloadData();
                 }
             });
@@ -159,7 +161,13 @@
 
     // 重新加载数据
     function reloadData() {
-        window.location.reload();
+        let indexLoad = layer.load(1, {// 遮罩层
+            shade: [0.5, '#fff']
+        });
+        setTimeout(function () {
+            layer.close(indexLoad);
+            window.location.reload();
+        }, 1000);
     }
 </script>
 </body>

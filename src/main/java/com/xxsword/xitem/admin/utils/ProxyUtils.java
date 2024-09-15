@@ -46,6 +46,16 @@ public class ProxyUtils {
         return list2;
     }
 
+    public static String getProxyBridgeStart(NetLinkModel netLink) {
+        if (netLink.getBridgePort() == null) {
+            log.error("bridgePort null");
+            return null;
+        }
+        String comm = ConstantProxy.PROXY_BRIDGE_START;
+        comm = comm.replaceAll("\\[0]", netLink.getBridgePort().toString());
+        return comm;
+    }
+
     public static String getProxyServerStart(NetLinkModel netLink) {
         if (netLink.getServerPort() == null) {
             log.error("serverPort null");
@@ -186,7 +196,7 @@ public class ProxyUtils {
             map.put("key", key);
             JSONDBCommNetLink jsondb = jsonObject.getObject(key, JSONDBCommNetLink.class);
             map.put("comm", jsondb);
-            map.put("delBtn", mapMD5.containsKey(key) ? 0 : 1);
+            map.put("runFlag", mapMD5.containsKey(key) ? 1 : 0);
             mapList.add(map);
         }
         return mapList;

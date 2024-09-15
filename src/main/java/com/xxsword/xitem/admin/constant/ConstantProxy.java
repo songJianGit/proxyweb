@@ -9,6 +9,6 @@ public class ConstantProxy {
     // bridge 端的启动
     public static final String PROXY_BRIDGE_START = "proxy bridge -p \":[0]\" -C " + SSL_CRT_PATH + " -K " + SSL_KEY_PATH + " --log " + LOG_PATH + "/proxy-bridge.log --forever --daemon";
     // server 端的启动
-    public static final String PROXY_SERVER_START = "proxy server -r :[0]@:[1] -P [2]:[3] -C " + SSL_CRT_PATH + " -K " + SSL_KEY_PATH + " --k [4] --log " + LOG_PATH + "/proxy-server-[0]-[1].log --forever --daemon";
+    public static final String PROXY_SERVER_START = "proxy server -r \":[0]@:[1]\" -P \"[2]:[3]\" -C " + SSL_CRT_PATH + " -K " + SSL_KEY_PATH + " --k [4] --log " + LOG_PATH + "/proxy-server-[0]-[1].log --forever --daemon";
 
 }
