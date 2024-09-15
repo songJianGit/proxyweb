@@ -24,7 +24,34 @@ public class JSONFileUtil {
         return getJSONObjectByPath(UpLoadUtil.getProjectPath() + UpLoadUtil.PATH_INFO + "/proxyweb.json");
     }
 
-    public static JSONObject getJSONObjectByPath(String filePath) {
+    public static void addJSONObjectToFile(String filePath, String key, JSONObject jsonObject) {
+        JSONObject jsonObjectAll = getJSONObjectByPath(filePath);
+        if (jsonObjectAll == null) {
+            jsonObjectAll = new JSONObject();
+        }
+        jsonObjectAll.put(key, jsonObject);
+        setJSONObjectToFile(filePath, jsonObjectAll);
+    }
+
+    public static void delJSONObjectToFile(String filePath, String key) {
+        JSONObject jsonObject = getJSONObjectByPath(filePath);
+        if (jsonObject != null) {
+            log.info("delDB key:{}", key);
+            jsonObject.remove(key);
+            setJSONObjectToFile(filePath, jsonObject);
+        }
+    }
+
+    public static JSONObject getJSONObjectAllByPath(String filePath) {
+        return getJSONObjectByPath(filePath);
+    }
+
+    /**
+     * 获取整个文件
+     * @param filePath
+     * @return
+     */
+    private static JSONObject getJSONObjectByPath(String filePath) {
         try (BufferedReader reader = new BufferedReader(new FileReader(filePath))) {
             // 读取文件内容到字符串中
             StringBuilder contentBuilder = new StringBuilder();
@@ -40,7 +67,12 @@ public class JSONFileUtil {
         return null;
     }
 
-    public static void setJSONObjectToFile(String filePath, JSONObject jsonObject) {
+    /**
+     * 覆盖整个文件
+     * @param filePath
+     * @param jsonObject
+     */
+    private static void setJSONObjectToFile(String filePath, JSONObject jsonObject) {
         Path path = Paths.get(filePath); // 文件路径
         // 检查文件是否存在，如果不存在则创建文件
         try {

@@ -2,7 +2,8 @@ package com.xxsword.xitem.admin.utils;
 
 import com.alibaba.fastjson2.JSONObject;
 import com.xxsword.xitem.admin.constant.ConstantProxy;
-import com.xxsword.xitem.admin.model.proxy.JSONDBComm;
+import com.xxsword.xitem.admin.model.JSONDBComm;
+import com.xxsword.xitem.admin.model.proxy.JSONDBCommNetLink;
 import com.xxsword.xitem.admin.model.proxy.NetLinkModel;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
@@ -14,6 +15,10 @@ public class ProxyUtils {
 
     public static final String COMM_PS = "ps -eo pid,ppid,cmd | grep proxy";
     private static final String FILE_DB_NAME = "proxydb.json";
+
+    private static String getPath() {
+        return UpLoadUtil.getProjectPath() + UpLoadUtil.PATH_INFO + "/" + FILE_DB_NAME;
+    }
 
     /**
      * 拿主进程
@@ -87,7 +92,8 @@ public class ProxyUtils {
             Map<String, Object> map = new HashMap<>();
             map.put("comm", comms);
             map.put("key", key);
-            map.put("nodes", getDBComm(key));
+            JSONDBCommNetLink jsondbCommNetLink = getDBComm(key);
+            map.put("nodes", jsondbCommNetLink == null ? "" : jsondbCommNetLink.getNotes());
             mapList.add(map);
         }
         return mapList;
@@ -111,35 +117,42 @@ public class ProxyUtils {
         return map;
     }
 
-    public static void setDBComm(String key, String notes) {
-        setDBComm(key, notes, null);
+    public static void setDBCommNotes(String key, String notes) {
+        JSONDBCommNetLink jsondb = getDBComm(key);
+        if (jsondb == null) {
+            jsondb = new JSONDBCommNetLink();
+            jsondb.setCdate(DateUtil.now());
+        }
+        jsondb.setNotes(notes);
+        JSONFileUtil.addJSONObjectToFile(getPath(), key, JSONObject.from(jsondb));
     }
 
     /**
      * 写入json文本
      *
      * @param key
-     * @param notes
+     * @param netLink
      * @param comm
      */
-    public static void setDBComm(String key, String notes, String comm) {
-        String filePath = UpLoadUtil.getProjectPath() + UpLoadUtil.PATH_INFO + "/" + FILE_DB_NAME;
-        JSONObject jsonObject = JSONFileUtil.getJSONObjectByPath(filePath);
-        if (jsonObject == null) {
-            jsonObject = new JSONObject();
-        }
-        JSONDBComm jsondb = jsonObject.getObject(key, JSONDBComm.class);
+    public static void setDBComm(String key, NetLinkModel netLink, String comm) {
+        JSONDBCommNetLink jsondb = getDBComm(key);
         if (jsondb == null) {
-            jsondb = new JSONDBComm();
+            jsondb = new JSONDBCommNetLink();
             jsondb.setCdate(DateUtil.now());
         }
         jsondb.setLdate(DateUtil.now());
-        jsondb.setNotes(notes);
+        jsondb.setNotes(netLink.getNotes());
         if (StringUtils.isNotBlank(comm)) {
             jsondb.setComm(comm);
         }
-        jsonObject.put(key, jsondb);
-        JSONFileUtil.setJSONObjectToFile(filePath, jsonObject);
+        jsondb.setKey(key);
+        jsondb.setServerPort(netLink.getServerPort());
+        jsondb.setClientPort(netLink.getClientPort());
+        jsondb.setBridgeIp(netLink.getBridgeIp());
+        jsondb.setBridgePort(netLink.getBridgePort());
+        jsondb.setK(netLink.getK());
+
+        JSONFileUtil.addJSONObjectToFile(getPath(), key, JSONObject.from(jsondb));
     }
 
     /**
@@ -148,41 +161,43 @@ public class ProxyUtils {
      * @param key
      * @return
      */
-    public static String getDBComm(String key) {
-        JSONObject jsonObject = JSONFileUtil.getJSONObjectByPath(UpLoadUtil.getProjectPath() + UpLoadUtil.PATH_INFO + "/" + FILE_DB_NAME);
+    public static JSONDBCommNetLink getDBComm(String key) {
+        JSONObject jsonObject = JSONFileUtil.getJSONObjectAllByPath(getPath());
         if (jsonObject == null) {
             return null;
         }
-        JSONDBComm jsondb = jsonObject.getObject(key, JSONDBComm.class);
-        return jsondb == null ? null : jsondb.getNotes();
+        return jsonObject.getObject(key, JSONDBCommNetLink.class);
     }
 
-    public static List<Map<String, String>> getDBCommALL() {
-        List<Map<String, String>> mapList = new ArrayList<>();
-        JSONObject jsonObject = JSONFileUtil.getJSONObjectByPath(UpLoadUtil.getProjectPath() + UpLoadUtil.PATH_INFO + "/" + FILE_DB_NAME);
+    /**
+     * 获取所有json db信息
+     *
+     * @return
+     */
+    public static List<Map<String, Object>> getDBCommALL() {
+        List<Map<String, Object>> mapList = new ArrayList<>();
+        JSONObject jsonObject = JSONFileUtil.getJSONObjectAllByPath(getPath());
         if (jsonObject == null) {
             return mapList;
         }
         Map<String, String[]> mapMD5 = ProxyUtils.pid1ToCommMap(ProxyUtils.handlePSPid1(CommandUtils.commHandle(CommandUtils.comm(ProxyUtils.COMM_PS))));
         for (String key : jsonObject.keySet()) {
-            Map<String, String> map = new HashMap<>();
+            Map<String, Object> map = new HashMap<>();
             map.put("key", key);
-            JSONDBComm jsondb = jsonObject.getObject(key, JSONDBComm.class);
-            map.put("notes", jsondb == null ? null : jsondb.getNotes());
-            map.put("comm", jsondb == null ? null : jsondb.getComm());
-            map.put("delBtn", mapMD5.containsKey(key) ? "0" : "1");
+            JSONDBCommNetLink jsondb = jsonObject.getObject(key, JSONDBCommNetLink.class);
+            map.put("comm", jsondb);
+            map.put("delBtn", mapMD5.containsKey(key) ? 0 : 1);
             mapList.add(map);
         }
         return mapList;
     }
 
+    /**
+     * 删除
+     *
+     * @param key
+     */
     public static void delDB(String key) {
-        JSONObject jsonObject = JSONFileUtil.getJSONObjectByPath(UpLoadUtil.getProjectPath() + UpLoadUtil.PATH_INFO + "/" + FILE_DB_NAME);
-        if (jsonObject != null) {
-            log.info("delDB key:{}", key);
-            jsonObject.remove(key);
-            String filePath = UpLoadUtil.getProjectPath() + UpLoadUtil.PATH_INFO + "/" + FILE_DB_NAME;
-            JSONFileUtil.setJSONObjectToFile(filePath, jsonObject);
-        }
+        JSONFileUtil.delJSONObjectToFile(getPath(), key);
     }
 }
