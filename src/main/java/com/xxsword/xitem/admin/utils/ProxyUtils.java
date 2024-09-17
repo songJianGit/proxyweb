@@ -2,7 +2,6 @@ package com.xxsword.xitem.admin.utils;
 
 import com.alibaba.fastjson2.JSONObject;
 import com.xxsword.xitem.admin.constant.ConstantProxy;
-import com.xxsword.xitem.admin.model.JSONDBComm;
 import com.xxsword.xitem.admin.model.proxy.JSONDBCommNetLink;
 import com.xxsword.xitem.admin.model.proxy.NetLinkModel;
 import lombok.extern.slf4j.Slf4j;
@@ -77,6 +76,15 @@ public class ProxyUtils {
             log.error("k null");
             return null;
         }
+        if (!Utils.isValidIPv4(netLink.getBridgeIp())) {// 格式验证
+            log.error("bridgeIp error:{}", netLink.getBridgeIp());
+            return null;
+        }
+        if (!Utils.isAlphanumeric(netLink.getK())) {// 格式验证
+            log.error("k error:{}", netLink.getK());
+            return null;
+        }
+
         String comm = ConstantProxy.PROXY_SERVER_START;
         comm = comm.replaceAll("\\[0]", netLink.getServerPort().toString());
         comm = comm.replaceAll("\\[1]", netLink.getClientPort().toString());
@@ -134,7 +142,7 @@ public class ProxyUtils {
             jsondb.setCdate(DateUtil.now());
         }
         jsondb.setNotes(notes);
-        JSONFileUtil.addJSONObjectToFile(getPath(), key, JSONObject.from(jsondb));
+        JSONDBFileUtil.addJSONObjectToFile(getPath(), key, JSONObject.from(jsondb));
     }
 
     /**
@@ -162,7 +170,7 @@ public class ProxyUtils {
         jsondb.setBridgePort(netLink.getBridgePort());
         jsondb.setK(netLink.getK());
 
-        JSONFileUtil.addJSONObjectToFile(getPath(), key, JSONObject.from(jsondb));
+        JSONDBFileUtil.addJSONObjectToFile(getPath(), key, JSONObject.from(jsondb));
     }
 
     /**
@@ -172,7 +180,7 @@ public class ProxyUtils {
      * @return
      */
     public static JSONDBCommNetLink getDBComm(String key) {
-        JSONObject jsonObject = JSONFileUtil.getJSONObjectAllByPath(getPath());
+        JSONObject jsonObject = JSONDBFileUtil.getJSONObjectAllByPath(getPath());
         if (jsonObject == null) {
             return null;
         }
@@ -186,7 +194,7 @@ public class ProxyUtils {
      */
     public static List<Map<String, Object>> getDBCommALL() {
         List<Map<String, Object>> mapList = new ArrayList<>();
-        JSONObject jsonObject = JSONFileUtil.getJSONObjectAllByPath(getPath());
+        JSONObject jsonObject = JSONDBFileUtil.getJSONObjectAllByPath(getPath());
         if (jsonObject == null) {
             return mapList;
         }
@@ -208,6 +216,6 @@ public class ProxyUtils {
      * @param key
      */
     public static void delDB(String key) {
-        JSONFileUtil.delJSONObjectToFile(getPath(), key);
+        JSONDBFileUtil.delJSONObjectToFile(getPath(), key);
     }
 }

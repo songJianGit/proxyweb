@@ -1,7 +1,7 @@
 package com.xxsword.xitem.admin.utils;
 
 import com.xxsword.xitem.admin.constant.Constant;
-import com.xxsword.xitem.admin.domain.system.entity.UserInfo;
+import com.xxsword.xitem.admin.model.user.User;
 import org.apache.commons.lang3.StringUtils;
 
 import javax.servlet.http.HttpServletRequest;
@@ -15,6 +15,26 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class Utils {
+    // 正则表达式，用于验证IPv4地址
+    private static final String ipv4Regex = "^(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$";
+    // 正则表达式，用于验证字符串是否仅包含字母和数字
+    private static final String ALPHANUMERIC_REGEX = "^[a-zA-Z0-9]+$";
+
+    public static boolean isValidIPv4(String ip) {
+        if (StringUtils.isBlank(ip)) {
+            return false;
+        }
+        // 使用正则表达式进行匹配
+        return ip.matches(ipv4Regex);
+    }
+
+    public static boolean isAlphanumeric(String str) {
+        if (str == null || str.isEmpty()) {
+            return false;
+        }
+        // 使用正则表达式进行匹配
+        return str.matches(ALPHANUMERIC_REGEX);
+    }
 
     // 密码加密
     public static String passwordEN(String password) {
@@ -54,12 +74,12 @@ public class Utils {
      * @param request
      * @return
      */
-    public static UserInfo getUserInfo(HttpServletRequest request) {
+    public static User getUserInfo(HttpServletRequest request) {
         Object o = request.getSession().getAttribute(Constant.USER_INFO);
         if (o == null) {
             return null;
         } else {
-            return (UserInfo) o;
+            return (User) o;
         }
     }
 

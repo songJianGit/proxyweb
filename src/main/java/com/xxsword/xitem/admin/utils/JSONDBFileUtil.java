@@ -1,6 +1,7 @@
 package com.xxsword.xitem.admin.utils;
 
 import com.alibaba.fastjson2.JSON;
+import com.alibaba.fastjson2.JSONArray;
 import com.alibaba.fastjson2.JSONObject;
 import lombok.extern.slf4j.Slf4j;
 
@@ -13,7 +14,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 
 @Slf4j
-public class JSONFileUtil {
+public class JSONDBFileUtil {
 
     /**
      * 获取配置信息
@@ -22,6 +23,14 @@ public class JSONFileUtil {
      */
     public static JSONObject getConf() {
         return getJSONObjectByPath(UpLoadUtil.getProjectPath() + UpLoadUtil.PATH_INFO + "/proxyweb.json");
+    }
+
+    public static JSONObject getConfGoProxy() {
+        return getConf().getJSONObject("go_proxy");
+    }
+
+    public static JSONArray getConfUser() {
+        return getConf().getJSONArray("user");
     }
 
     public static void addJSONObjectToFile(String filePath, String key, JSONObject jsonObject) {
@@ -48,6 +57,7 @@ public class JSONFileUtil {
 
     /**
      * 获取整个文件
+     *
      * @param filePath
      * @return
      */
@@ -69,6 +79,7 @@ public class JSONFileUtil {
 
     /**
      * 覆盖整个文件
+     *
      * @param filePath
      * @param jsonObject
      */

@@ -26,7 +26,10 @@
 <body>
 
 <div class="body-div">
-    <div class="border-div">项目名称：${conf.project_name!}</div>
+    <div class="border-div">
+        <div>项目名称：${conf.project_name!}</div>
+        <div>${Session.puser.loginName}<a href="${ctx.contextPath}/loginOut">退出登录</a></div>
+    </div>
     <div class="border-div">
         <button type="button" onclick="addBridgeBtn()">新增bridge</button>
         <button type="button" onclick="addBtn()">新增server</button>

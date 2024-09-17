@@ -1,11 +1,12 @@
 package com.xxsword.xitem.admin.controller;
 
+import com.alibaba.fastjson2.JSONArray;
 import com.alibaba.fastjson2.JSONObject;
 import com.xxsword.xitem.admin.constant.Constant;
-import com.xxsword.xitem.admin.domain.system.entity.UserInfo;
 import com.xxsword.xitem.admin.model.Codes;
 import com.xxsword.xitem.admin.model.RestResult;
-import com.xxsword.xitem.admin.utils.JSONFileUtil;
+import com.xxsword.xitem.admin.model.user.User;
+import com.xxsword.xitem.admin.utils.JSONDBFileUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Controller;
@@ -24,7 +25,7 @@ public class LoginController extends BaseController {
     public String loginOut(HttpServletRequest request) {
         request.getSession().invalidate();
         request.getSession();
-        return "redirect:login";
+        return "redirect:adminLogin";
     }
 
     /**
@@ -45,15 +46,15 @@ public class LoginController extends BaseController {
         if (StringUtils.isBlank(passWord)) {
             return RestResult.Codes(Codes.LOGIN_FAIL);
         }
-        JSONObject jsonObject = JSONFileUtil.getConf();
-        String name = jsonObject.getString("user_login_name");
-        String pwd = jsonObject.getString("user_password");
-        if (name.equals(loginName) && passWord.equals(pwd)) {
-            UserInfo userInfo = new UserInfo();
-            userInfo.setLoginName(loginName);
-            userInfo.setPassword(passWord);
-            request.getSession().setAttribute(Constant.USER_INFO, userInfo);
-            return RestResult.Codes(Codes.LOGIN_OK);
+        JSONArray users = JSONDBFileUtil.getConfUser();
+        for (int i = 0; i < users.size(); i++) {
+            JSONObject user = users.getJSONObject(i);
+            String name = user.getString("login_name");
+            String pwd = user.getString("password");
+            if (name.equals(loginName) && passWord.equals(pwd)) {
+                request.getSession().setAttribute(Constant.USER_INFO, new User(name, pwd));
+                return RestResult.Codes(Codes.LOGIN_OK);
+            }
         }
         return RestResult.Codes(Codes.LOGIN_FAIL);
     }

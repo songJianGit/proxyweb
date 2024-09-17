@@ -3,11 +3,9 @@ package com.xxsword.xitem.admin.controller;
 import com.xxsword.xitem.admin.model.RestResult;
 import com.xxsword.xitem.admin.model.proxy.JSONDBCommNetLink;
 import com.xxsword.xitem.admin.model.proxy.NetLinkModel;
-import com.xxsword.xitem.admin.service.system.UserInfoService;
 import com.xxsword.xitem.admin.utils.*;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -22,9 +20,6 @@ import java.util.Map;
 @RequestMapping("admin/netlink")
 public class NetLinkController extends BaseController {
 
-    @Autowired
-    private UserInfoService userInfoService;
-
     @RequestMapping("list")
     public String list(HttpServletRequest request, Model model) {
         List<String> results = CommandUtils.comm(ProxyUtils.COMM_PS);
@@ -33,7 +28,7 @@ public class NetLinkController extends BaseController {
         // 控制台过滤
         model.addAttribute("resultHandle", ProxyUtils.commAssociationJsonFileInfo(ProxyUtils.handlePSPid1(CommandUtils.commHandle(results))));
         // 配置文件
-        model.addAttribute("conf", JSONFileUtil.getConf());
+        model.addAttribute("conf", JSONDBFileUtil.getConf());
         // DB信息
         model.addAttribute("proxydb", ProxyUtils.getDBCommALL());
         return "/admin/netlink/list";
@@ -74,6 +69,9 @@ public class NetLinkController extends BaseController {
      * @return
      */
     private static RestResult runCommAndSaveDB(String comm, NetLinkModel netLink) {
+        if (StringUtils.isBlank(comm)) {
+            return RestResult.Fail();
+        }
         if (StringUtils.isBlank(netLink.getKey())) {
             CommandUtils.comm(comm, true);// key为空时，为新增，直接运行；key有值时为复制，不运行。
         }
