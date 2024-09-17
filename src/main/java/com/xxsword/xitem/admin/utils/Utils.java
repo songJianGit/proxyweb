@@ -29,7 +29,7 @@ public class Utils {
     }
 
     public static boolean isAlphanumeric(String str) {
-        if (str == null || str.isEmpty()) {
+        if (StringUtils.isBlank(str)) {
             return false;
         }
         // 使用正则表达式进行匹配
