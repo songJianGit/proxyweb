@@ -32,15 +32,14 @@
     </div>
     <#include "../commons/menu.ftl"/>
     <div class="border-div">
-        <button type="button" onclick="addBridgeBtn()">新增bridge</button>
-        <button type="button" onclick="addBtn()">新增server</button>
+        <button type="button" onclick="addBtn()">新增cmd</button>
     </div>
-    <#--    <div class="border-div">-->
-    <#--        控制台进程信息-->
-    <#--        <#list results as item>-->
-    <#--            <p>${item!}</p>-->
-    <#--        </#list>-->
-    <#--    </div>-->
+    <div class="border-div">
+        控制台进程信息
+        <#list results as item>
+            <p>${item!}</p>
+        </#list>
+    </div>
     <div class="border-div">
         控制台进程信息（过滤）
         <#list resultHandle as results>
@@ -70,8 +69,8 @@
                 <p>主键：${db.comm.key!}</p>
                 <p>命令（控制台运行全文）：${db.comm.comm!}</p>
                 <p>备注：${db.comm.notes!}</p>
-                <#--                <p>创建时间：${db.comm.cdate!}</p>-->
-                <#--                <p>更新时间：${db.comm.ldate!}</p>-->
+<#--                <p>创建时间：${db.comm.cdate!}</p>-->
+<#--                <p>更新时间：${db.comm.ldate!}</p>-->
                 <p>
                     <button type="button" onclick="editBtnNotes('${db.comm.key!}')">编辑备注</button>
                     <button type="button" onclick="copyBtn('${db.comm.key!}')">复制</button>
@@ -88,19 +87,15 @@
 <#include "../commons/js.ftl"/>
 <script type="text/javascript">
     function addBtn() {
-        layer_show('新增', '${ctx.contextPath}/admin/netlink/edit');
-    }
-
-    function addBridgeBtn() {
-        layer_show('新增', '${ctx.contextPath}/admin/netlink/editBridge');
+        layer_show('新增', '${ctx.contextPath}/admin/cmd/edit');
     }
 
     function copyBtn(key) {
-        layer_show('复制', '${ctx.contextPath}/admin/netlink/edit?key=' + key);
+        layer_show('复制', '${ctx.contextPath}/admin/cmd/edit?key=' + key);
     }
 
     function editBtnNotes(key) {
-        layer_show('编辑', '${ctx.contextPath}/admin/netlink/editBtnNotes?key=' + key);
+        layer_show('编辑', '${ctx.contextPath}/admin/cmd/editBtnNotes?key=' + key);
     }
 
     function delBtn(key) {
@@ -109,7 +104,7 @@
             btn: ['确定', '取消'] //按钮
         }, function () {
             $.ajax({
-                url: '${ctx.contextPath}/admin/netlink/delKey',
+                url: '${ctx.contextPath}/admin/cmd/delKey',
                 cache: false,
                 data: {
                     key: key
@@ -129,7 +124,7 @@
             btn: ['确定', '取消'] //按钮
         }, function () {
             $.ajax({
-                url: '${ctx.contextPath}/admin/netlink/stop',
+                url: '${ctx.contextPath}/admin/cmd/stop',
                 cache: false,
                 data: {
                     key: key
@@ -149,7 +144,7 @@
             btn: ['确定', '取消'] //按钮
         }, function () {
             $.ajax({
-                url: '${ctx.contextPath}/admin/netlink/run',
+                url: '${ctx.contextPath}/admin/cmd/run',
                 cache: false,
                 data: {
                     key: key

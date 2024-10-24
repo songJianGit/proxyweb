@@ -3,6 +3,9 @@ package com.xxsword.xitem.admin.model.proxy;
 import com.xxsword.xitem.admin.model.JSONDBComm;
 import lombok.Data;
 
+/**
+ * 内网穿透的jsonDB存储模型
+ */
 @Data
 public class JSONDBCommNetLink extends JSONDBComm {
     private Integer serverPort;// 服务器监听端口

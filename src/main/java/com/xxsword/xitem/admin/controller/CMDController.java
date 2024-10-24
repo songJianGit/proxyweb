@@ -1,9 +1,12 @@
 package com.xxsword.xitem.admin.controller;
 
 import com.xxsword.xitem.admin.model.RestResult;
-import com.xxsword.xitem.admin.model.proxy.JSONDBCommNetLink;
-import com.xxsword.xitem.admin.model.proxy.NetLinkModel;
-import com.xxsword.xitem.admin.utils.*;
+import com.xxsword.xitem.admin.model.proxy.JSONDBCommCMD;
+import com.xxsword.xitem.admin.model.proxy.CMDModel;
+import com.xxsword.xitem.admin.utils.CommandUtils;
+import com.xxsword.xitem.admin.utils.JSONDBFileUtil;
+import com.xxsword.xitem.admin.utils.ProxyUtils;
+import com.xxsword.xitem.admin.utils.Utils;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Controller;
@@ -17,66 +20,55 @@ import java.util.Map;
 
 @Slf4j
 @Controller
-@RequestMapping("admin/netlink")
-public class NetLinkController extends BaseController {
+@RequestMapping("admin/cmd")
+public class CMDController extends BaseController {
 
     @RequestMapping("list")
     public String list(HttpServletRequest request, Model model) {
         List<String> results = CommandUtils.comm(ProxyUtils.COMM_PS);
         // 控制台
-//        model.addAttribute("results", results);
+        model.addAttribute("results", results);
         // 控制台过滤
         model.addAttribute("resultHandle", ProxyUtils.commAssociationJsonFileInfo(ProxyUtils.handlePSPid1(CommandUtils.commHandle(results))));
         // 配置文件
         model.addAttribute("conf", JSONDBFileUtil.getConf());
         // DB信息
         model.addAttribute("proxydb", ProxyUtils.getDBCommALL());
-        return "/admin/netlink/list";
+        return "/admin/cmd/list";
     }
 
     @RequestMapping("edit")
     public String edit(HttpServletRequest request, String key, Model model) {
-        JSONDBCommNetLink jsondbCommNetLink = new JSONDBCommNetLink();
+        JSONDBCommCMD jsondbCommCMD = new JSONDBCommCMD();
         if (StringUtils.isNotBlank(key)) {
-            jsondbCommNetLink = ProxyUtils.getDBCommNetLink(key);
+            jsondbCommCMD = ProxyUtils.getDBCommCMD(key);
         }
-        model.addAttribute("comm", jsondbCommNetLink);
-        return "/admin/netlink/edit";
-    }
-
-    @RequestMapping("editBridge")
-    public String editBridge(HttpServletRequest request) {
-        return "/admin/netlink/editbridge";
-    }
-
-    @RequestMapping("saveBridge")
-    @ResponseBody
-    public RestResult saveBridge(HttpServletRequest request, NetLinkModel netLink) {
-        return runCommAndSaveDB(ProxyUtils.getProxyBridgeStart(netLink), netLink);
+        model.addAttribute("comm", jsondbCommCMD);
+        return "/admin/cmd/edit";
     }
 
     @RequestMapping("save")
     @ResponseBody
-    public RestResult save(HttpServletRequest request, NetLinkModel netLink) {
-        return runCommAndSaveDB(ProxyUtils.getProxyServerStart(netLink), netLink);
+    public RestResult save(HttpServletRequest request, CMDModel cmdModel) {
+        return runCommAndSaveDB(cmdModel.getCmd(), cmdModel);
     }
 
     /**
      * 运行命令，并记录DB信息
      *
      * @param comm
-     * @param netLink
+     * @param cmdModel
      * @return
      */
-    private static RestResult runCommAndSaveDB(String comm, NetLinkModel netLink) {
+    private static RestResult runCommAndSaveDB(String comm, CMDModel cmdModel) {
         if (StringUtils.isBlank(comm)) {
             return RestResult.Fail();
         }
-        if (StringUtils.isBlank(netLink.getKey())) {
+        if (StringUtils.isBlank(cmdModel.getKey())) {
             CommandUtils.comm(comm, true);// key为空时，为新增，直接运行；key有值时为复制，不运行。
         }
         String cmd_comm = comm.replaceAll(" --daemon", "").replaceAll("\"", "");
-        ProxyUtils.setDBCommNetLink(Utils.getMD5(cmd_comm), netLink, comm);
+        ProxyUtils.setDBCommCMD(Utils.getMD5(cmd_comm), cmdModel, comm);
         return RestResult.OK();
     }
 
@@ -86,11 +78,11 @@ public class NetLinkController extends BaseController {
         if (StringUtils.isBlank(key)) {
             return RestResult.Fail();
         }
-        JSONDBCommNetLink jsondbCommNetLink = ProxyUtils.getDBCommNetLink(key);
-        if (jsondbCommNetLink == null || StringUtils.isBlank(jsondbCommNetLink.getComm())) {
+        JSONDBCommCMD jsondbCommCMD = ProxyUtils.getDBCommCMD(key);
+        if (jsondbCommCMD == null || StringUtils.isBlank(jsondbCommCMD.getComm())) {
             return RestResult.Fail();
         }
-        CommandUtils.comm(jsondbCommNetLink.getComm(), true);
+        CommandUtils.comm(jsondbCommCMD.getComm(), true);
         return RestResult.OK();
     }
 
@@ -112,14 +104,14 @@ public class NetLinkController extends BaseController {
 
     @RequestMapping("editBtnNotes")
     public String editBtnNotes(HttpServletRequest request, String key, Model model) {
-        model.addAttribute("comm", ProxyUtils.getDBCommNetLink(key));
-        return "/admin/netlink/editnotes";
+        model.addAttribute("comm", ProxyUtils.getDBCommCMD(key));
+        return "/admin/cmd/editnotes";
     }
 
     @RequestMapping("saveNotes")
     @ResponseBody
     public RestResult saveNotes(HttpServletRequest request, String key, String notes) {
-        ProxyUtils.setDBCommNotesNetLink(key, notes);
+        ProxyUtils.setDBCommNotesCMD(key, notes);
         return RestResult.OK();
     }
 }

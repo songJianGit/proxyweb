@@ -9,4 +9,5 @@ public class JSONDBComm {
     private String ldate;// 更新时间
     private String comm;// 命令
     private String notes;// 备注
+    private Integer initStart;// 是否在java启动时，一起启动（若已启动则不管）
 }

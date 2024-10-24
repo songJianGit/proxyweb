@@ -2,6 +2,8 @@ package com.xxsword.xitem.admin.utils;
 
 import com.alibaba.fastjson2.JSONObject;
 import com.xxsword.xitem.admin.constant.ConstantProxy;
+import com.xxsword.xitem.admin.model.proxy.CMDModel;
+import com.xxsword.xitem.admin.model.proxy.JSONDBCommCMD;
 import com.xxsword.xitem.admin.model.proxy.JSONDBCommNetLink;
 import com.xxsword.xitem.admin.model.proxy.NetLinkModel;
 import lombok.extern.slf4j.Slf4j;
@@ -110,7 +112,7 @@ public class ProxyUtils {
             Map<String, Object> map = new HashMap<>();
             map.put("comm", comms);
             map.put("key", key);
-            JSONDBCommNetLink jsondbCommNetLink = getDBComm(key);
+            JSONDBCommNetLink jsondbCommNetLink = getDBCommNetLink(key);
             map.put("nodes", jsondbCommNetLink == null ? "" : jsondbCommNetLink.getNotes());
             mapList.add(map);
         }
@@ -135,12 +137,24 @@ public class ProxyUtils {
         return map;
     }
 
-    public static void setDBCommNotes(String key, String notes) {
-        JSONDBCommNetLink jsondb = getDBComm(key);
+    public static void setDBCommNotesNetLink(String key, String notes) {
+        JSONDBCommNetLink jsondb = getDBCommNetLink(key);
         if (jsondb == null) {
             jsondb = new JSONDBCommNetLink();
             jsondb.setCdate(DateUtil.now());
         }
+        jsondb.setLdate(DateUtil.now());
+        jsondb.setNotes(notes);
+        JSONDBFileUtil.addJSONObjectToFile(getPath(), key, JSONObject.from(jsondb));
+    }
+
+    public static void setDBCommNotesCMD(String key, String notes) {
+        JSONDBCommCMD jsondb = getDBCommCMD(key);
+        if (jsondb == null) {
+            jsondb = new JSONDBCommCMD();
+            jsondb.setCdate(DateUtil.now());
+        }
+        jsondb.setLdate(DateUtil.now());
         jsondb.setNotes(notes);
         JSONDBFileUtil.addJSONObjectToFile(getPath(), key, JSONObject.from(jsondb));
     }
@@ -152,8 +166,8 @@ public class ProxyUtils {
      * @param netLink
      * @param comm
      */
-    public static void setDBComm(String key, NetLinkModel netLink, String comm) {
-        JSONDBCommNetLink jsondb = getDBComm(key);
+    public static void setDBCommNetLink(String key, NetLinkModel netLink, String comm) {
+        JSONDBCommNetLink jsondb = getDBCommNetLink(key);
         if (jsondb == null) {
             jsondb = new JSONDBCommNetLink();
             jsondb.setCdate(DateUtil.now());
@@ -169,6 +183,32 @@ public class ProxyUtils {
         jsondb.setBridgeIp(netLink.getBridgeIp());
         jsondb.setBridgePort(netLink.getBridgePort());
         jsondb.setK(netLink.getK());
+        jsondb.setInitStart(netLink.getInitStart());
+
+        JSONDBFileUtil.addJSONObjectToFile(getPath(), key, JSONObject.from(jsondb));
+    }
+
+    /**
+     * 写入json文本
+     *
+     * @param key
+     * @param cmdModel
+     * @param comm
+     */
+    public static void setDBCommCMD(String key, CMDModel cmdModel, String comm) {
+        JSONDBCommCMD jsondb = getDBCommCMD(key);
+        if (jsondb == null) {
+            jsondb = new JSONDBCommCMD();
+            jsondb.setCdate(DateUtil.now());
+        }
+        jsondb.setLdate(DateUtil.now());
+        jsondb.setNotes(cmdModel.getNotes());
+        if (StringUtils.isNotBlank(comm)) {
+            jsondb.setComm(comm);
+        }
+        jsondb.setKey(key);
+        jsondb.setCmd(cmdModel.getCmd());
+        jsondb.setInitStart(cmdModel.getInitStart());
 
         JSONDBFileUtil.addJSONObjectToFile(getPath(), key, JSONObject.from(jsondb));
     }
@@ -179,12 +219,20 @@ public class ProxyUtils {
      * @param key
      * @return
      */
-    public static JSONDBCommNetLink getDBComm(String key) {
+    public static JSONDBCommNetLink getDBCommNetLink(String key) {
         JSONObject jsonObject = JSONDBFileUtil.getJSONObjectAllByPath(getPath());
         if (jsonObject == null) {
             return null;
         }
         return jsonObject.getObject(key, JSONDBCommNetLink.class);
+    }
+
+    public static JSONDBCommCMD getDBCommCMD(String key) {
+        JSONObject jsonObject = JSONDBFileUtil.getJSONObjectAllByPath(getPath());
+        if (jsonObject == null) {
+            return null;
+        }
+        return jsonObject.getObject(key, JSONDBCommCMD.class);
     }
 
     /**
