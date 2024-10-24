@@ -23,6 +23,22 @@ public class ProxyUtils {
     }
 
     /**
+     * 运行需要跟随启动的命令
+     */
+    public static void initComm() {
+        List<JSONDBComm> commList = getDBCommByInitStart();
+        Map<String, String[]> mapMD5 = ProxyUtils.pid1ToCommMapFast();
+        for (JSONDBComm item : commList) {
+            if (mapMD5.containsKey(item.getKey())) {
+                log.info("init run started key:{}", item.getKey());// 已启动的，无需运行。
+            } else {
+                log.info("init run start key:{},comm:{}", item.getKey(), item.getComm());
+                CommandUtils.comm(item.getComm(), true);
+            }
+        }
+    }
+
+    /**
      * 拿主进程
      *
      * @param list
@@ -264,7 +280,7 @@ public class ProxyUtils {
      * @param dbType JSONDBComm的dbType字段
      * @return
      */
-    public static List<Map<String, Object>> getDBCommALL(Integer dbType) {
+    public static List<Map<String, Object>> getDBCommALLByDbType(Integer dbType) {
         List<Map<String, Object>> mapList = new ArrayList<>();
         JSONObject jsonObject = JSONDBFileUtil.getJSONObjectAllByPath(getPath());
         if (jsonObject == null) {
@@ -286,6 +302,30 @@ public class ProxyUtils {
             }
         }
         return mapList;
+    }
+
+    /**
+     * 获取需要启动的命令
+     *
+     * @return
+     */
+    public static List<JSONDBComm> getDBCommByInitStart() {
+        List<JSONDBComm> list = new ArrayList<>();
+        JSONObject jsonObject = JSONDBFileUtil.getJSONObjectAllByPath(getPath());
+        if (jsonObject == null) {
+            return list;
+        }
+        for (String key : jsonObject.keySet()) {
+            JSONDBComm jsondb = jsonObject.getObject(key, JSONDBComm.class);
+            Integer start = jsondb.getInitStart();
+            if (start == null) {
+                start = 0;// 默认不启动
+            }
+            if (start.equals(1)) {
+                list.add(jsondb);
+            }
+        }
+        return list;
     }
 
     /**

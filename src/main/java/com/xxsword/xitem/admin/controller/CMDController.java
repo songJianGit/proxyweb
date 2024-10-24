@@ -33,7 +33,7 @@ public class CMDController extends BaseController {
         // 配置文件
         model.addAttribute("conf", JSONDBFileUtil.getConf());
         // DB信息
-        model.addAttribute("proxydb", ProxyUtils.getDBCommALL(2));
+        model.addAttribute("proxydb", ProxyUtils.getDBCommALLByDbType(2));
         return "/admin/cmd/list";
     }
 

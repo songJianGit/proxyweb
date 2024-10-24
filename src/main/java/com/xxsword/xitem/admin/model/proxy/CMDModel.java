@@ -11,4 +11,6 @@ public class CMDModel {
     private String cmd;// 命令
     private String notes;// 备注
     private Integer initStart;
+    private Integer dbType = 2;
+
 }

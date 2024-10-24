@@ -30,7 +30,7 @@ public class NetLinkController extends BaseController {
         // 配置文件
         model.addAttribute("conf", JSONDBFileUtil.getConf());
         // DB信息
-        model.addAttribute("proxydb", ProxyUtils.getDBCommALL(1));
+        model.addAttribute("proxydb", ProxyUtils.getDBCommALLByDbType(1));
         return "/admin/netlink/list";
     }
 

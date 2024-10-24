@@ -15,4 +15,6 @@ public class NetLinkModel {
     private String k;// 客户端标识
     private String notes;// 备注
     private Integer initStart;
+    private Integer dbType = 1;
+
 }

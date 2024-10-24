@@ -18,7 +18,7 @@
     <div>
         <div class="line-div">
             <label for="cmd">命令</label>
-            <input id="cmd" placeholder="命令" type="text" maxlength="500" value="${comm.cmd!}"/>*
+            <textarea id="cmd" maxlength="500">${comm.cmd!}</textarea>
         </div>
         <div class="line-div">
             <label for="notes">备注</label>
