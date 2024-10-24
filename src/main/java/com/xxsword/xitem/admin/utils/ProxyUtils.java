@@ -211,6 +211,7 @@ public class ProxyUtils {
         jsondb.setBridgePort(netLink.getBridgePort());
         jsondb.setK(netLink.getK());
         jsondb.setInitStart(netLink.getInitStart());
+        jsondb.setDbType(netLink.getDbType());
 
         JSONDBFileUtil.addJSONObjectToFile(getPath(), key, JSONObject.from(jsondb));
     }
@@ -236,6 +237,7 @@ public class ProxyUtils {
         jsondb.setKey(key);
         jsondb.setCmd(cmdModel.getCmd());
         jsondb.setInitStart(cmdModel.getInitStart());
+        jsondb.setDbType(cmdModel.getDbType());
 
         JSONDBFileUtil.addJSONObjectToFile(getPath(), key, JSONObject.from(jsondb));
     }

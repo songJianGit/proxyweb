@@ -40,6 +40,13 @@
             <label for="notes">备注</label>
             <input id="notes" placeholder="备注" type="text" maxlength="200" value="${comm.notes!}"/>
         </div>
+        <div class="line-div">
+            <label>java重启时是否启动</label>
+            <input name="initStart" type="radio" value="1"
+                   <#if comm.initStart??><#if comm.initStart==1>checked</#if></#if>/>是
+            <input name="initStart" type="radio" value="0"
+                   <#if comm.initStart??><#if comm.initStart==0>checked</#if></#if>/>否
+        </div>
     </div>
     <div class="line-div">
         <button type="button" onclick="addBtn()">保存</button>
@@ -54,6 +61,10 @@
         let bridgePort = $("#bridgePort").val();
         let k = $("#k").val();
         let notes = $("#notes").val();
+        let initStart = $("input[name='initStart']:checked").val();
+        if (isBlank(initStart)) {
+            initStart = 0;
+        }
         if (isBlank(serverPort)) {
             layer.msg("请填写服务器监听端口");
             return false;
@@ -84,7 +95,8 @@
                 bridgeIp: bridgeIp,
                 bridgePort: bridgePort,
                 k: k,
-                notes: notes
+                notes: notes,
+                initStart: initStart
             },
             success: function (data) {
                 parent.reloadData();
