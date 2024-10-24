@@ -27,13 +27,13 @@ public class CMDController extends BaseController {
     public String list(HttpServletRequest request, Model model) {
         List<String> results = CommandUtils.comm(ProxyUtils.COMM_PS);
         // 控制台
-        model.addAttribute("results", results);
+//        model.addAttribute("results", results);
         // 控制台过滤
-        model.addAttribute("resultHandle", ProxyUtils.commAssociationJsonFileInfo(ProxyUtils.handlePSPid1(CommandUtils.commHandle(results))));
+        model.addAttribute("resultHandle", ProxyUtils.commAssociationJsonFileInfo(ProxyUtils.handlePSPid1(CommandUtils.commHandle(results)), JSONDBCommCMD.class));
         // 配置文件
         model.addAttribute("conf", JSONDBFileUtil.getConf());
         // DB信息
-        model.addAttribute("proxydb", ProxyUtils.getDBCommALL());
+        model.addAttribute("proxydb", ProxyUtils.getDBCommALL(2));
         return "/admin/cmd/list";
     }
 
@@ -41,7 +41,7 @@ public class CMDController extends BaseController {
     public String edit(HttpServletRequest request, String key, Model model) {
         JSONDBCommCMD jsondbCommCMD = new JSONDBCommCMD();
         if (StringUtils.isNotBlank(key)) {
-            jsondbCommCMD = ProxyUtils.getDBCommCMD(key);
+            jsondbCommCMD = ProxyUtils.getDBComm(key, JSONDBCommCMD.class);
         }
         model.addAttribute("comm", jsondbCommCMD);
         return "/admin/cmd/edit";
@@ -50,19 +50,22 @@ public class CMDController extends BaseController {
     @RequestMapping("save")
     @ResponseBody
     public RestResult save(HttpServletRequest request, CMDModel cmdModel) {
-        return runCommAndSaveDB(cmdModel.getCmd(), cmdModel);
+        return runCommAndSaveDB(cmdModel);
     }
 
     /**
      * 运行命令，并记录DB信息
      *
-     * @param comm
      * @param cmdModel
      * @return
      */
-    private static RestResult runCommAndSaveDB(String comm, CMDModel cmdModel) {
+    private static RestResult runCommAndSaveDB(CMDModel cmdModel) {
+        String comm = cmdModel.getCmd();
         if (StringUtils.isBlank(comm)) {
             return RestResult.Fail();
+        }
+        if (!ProxyUtils.checkCmd(comm)) {
+            return RestResult.Fail("异常命令(命令不是proxy开头，或者命令中包含了符号 && ; || | ( )");
         }
         if (StringUtils.isBlank(cmdModel.getKey())) {
             CommandUtils.comm(comm, true);// key为空时，为新增，直接运行；key有值时为复制，不运行。
@@ -78,7 +81,7 @@ public class CMDController extends BaseController {
         if (StringUtils.isBlank(key)) {
             return RestResult.Fail();
         }
-        JSONDBCommCMD jsondbCommCMD = ProxyUtils.getDBCommCMD(key);
+        JSONDBCommCMD jsondbCommCMD = ProxyUtils.getDBComm(key, JSONDBCommCMD.class);
         if (jsondbCommCMD == null || StringUtils.isBlank(jsondbCommCMD.getComm())) {
             return RestResult.Fail();
         }
@@ -89,7 +92,7 @@ public class CMDController extends BaseController {
     @RequestMapping("stop")
     @ResponseBody
     public RestResult stop(HttpServletRequest request, String key) {
-        Map<String, String[]> mapMD5 = ProxyUtils.pid1ToCommMap(ProxyUtils.handlePSPid1(CommandUtils.commHandle(CommandUtils.comm(ProxyUtils.COMM_PS))));
+        Map<String, String[]> mapMD5 = ProxyUtils.pid1ToCommMapFast();
         String[] value = mapMD5.get(key);
         CommandUtils.comm("kill " + value[0]);
         return RestResult.OK();
@@ -104,14 +107,14 @@ public class CMDController extends BaseController {
 
     @RequestMapping("editBtnNotes")
     public String editBtnNotes(HttpServletRequest request, String key, Model model) {
-        model.addAttribute("comm", ProxyUtils.getDBCommCMD(key));
+        model.addAttribute("comm", ProxyUtils.getDBComm(key, JSONDBCommCMD.class));
         return "/admin/cmd/editnotes";
     }
 
     @RequestMapping("saveNotes")
     @ResponseBody
     public RestResult saveNotes(HttpServletRequest request, String key, String notes) {
-        ProxyUtils.setDBCommNotesCMD(key, notes);
+        ProxyUtils.setDBCommNotes(key, notes, JSONDBCommCMD.class);
         return RestResult.OK();
     }
 }

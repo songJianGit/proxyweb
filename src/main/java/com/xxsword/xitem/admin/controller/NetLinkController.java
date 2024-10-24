@@ -26,11 +26,11 @@ public class NetLinkController extends BaseController {
         // 控制台
 //        model.addAttribute("results", results);
         // 控制台过滤
-        model.addAttribute("resultHandle", ProxyUtils.commAssociationJsonFileInfo(ProxyUtils.handlePSPid1(CommandUtils.commHandle(results))));
+        model.addAttribute("resultHandle", ProxyUtils.commAssociationJsonFileInfo(ProxyUtils.handlePSPid1(CommandUtils.commHandle(results)), JSONDBCommNetLink.class));
         // 配置文件
         model.addAttribute("conf", JSONDBFileUtil.getConf());
         // DB信息
-        model.addAttribute("proxydb", ProxyUtils.getDBCommALL());
+        model.addAttribute("proxydb", ProxyUtils.getDBCommALL(1));
         return "/admin/netlink/list";
     }
 
@@ -38,7 +38,7 @@ public class NetLinkController extends BaseController {
     public String edit(HttpServletRequest request, String key, Model model) {
         JSONDBCommNetLink jsondbCommNetLink = new JSONDBCommNetLink();
         if (StringUtils.isNotBlank(key)) {
-            jsondbCommNetLink = ProxyUtils.getDBCommNetLink(key);
+            jsondbCommNetLink = ProxyUtils.getDBComm(key, JSONDBCommNetLink.class);
         }
         model.addAttribute("comm", jsondbCommNetLink);
         return "/admin/netlink/edit";
@@ -72,6 +72,9 @@ public class NetLinkController extends BaseController {
         if (StringUtils.isBlank(comm)) {
             return RestResult.Fail();
         }
+        if (!ProxyUtils.checkCmd(comm)) {
+            return RestResult.Fail("异常命令(命令不是proxy开头，或者命令中包含了符号 && ; || | ( )");
+        }
         if (StringUtils.isBlank(netLink.getKey())) {
             CommandUtils.comm(comm, true);// key为空时，为新增，直接运行；key有值时为复制，不运行。
         }
@@ -86,7 +89,7 @@ public class NetLinkController extends BaseController {
         if (StringUtils.isBlank(key)) {
             return RestResult.Fail();
         }
-        JSONDBCommNetLink jsondbCommNetLink = ProxyUtils.getDBCommNetLink(key);
+        JSONDBCommNetLink jsondbCommNetLink = ProxyUtils.getDBComm(key, JSONDBCommNetLink.class);
         if (jsondbCommNetLink == null || StringUtils.isBlank(jsondbCommNetLink.getComm())) {
             return RestResult.Fail();
         }
@@ -97,7 +100,7 @@ public class NetLinkController extends BaseController {
     @RequestMapping("stop")
     @ResponseBody
     public RestResult stop(HttpServletRequest request, String key) {
-        Map<String, String[]> mapMD5 = ProxyUtils.pid1ToCommMap(ProxyUtils.handlePSPid1(CommandUtils.commHandle(CommandUtils.comm(ProxyUtils.COMM_PS))));
+        Map<String, String[]> mapMD5 = ProxyUtils.pid1ToCommMapFast();
         String[] value = mapMD5.get(key);
         CommandUtils.comm("kill " + value[0]);
         return RestResult.OK();
@@ -112,14 +115,14 @@ public class NetLinkController extends BaseController {
 
     @RequestMapping("editBtnNotes")
     public String editBtnNotes(HttpServletRequest request, String key, Model model) {
-        model.addAttribute("comm", ProxyUtils.getDBCommNetLink(key));
+        model.addAttribute("comm", ProxyUtils.getDBComm(key, JSONDBCommNetLink.class));
         return "/admin/netlink/editnotes";
     }
 
     @RequestMapping("saveNotes")
     @ResponseBody
     public RestResult saveNotes(HttpServletRequest request, String key, String notes) {
-        ProxyUtils.setDBCommNotesNetLink(key, notes);
+        ProxyUtils.setDBCommNotes(key, notes, JSONDBCommNetLink.class);
         return RestResult.OK();
     }
 }

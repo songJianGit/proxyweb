@@ -2,6 +2,7 @@ package com.xxsword.xitem.admin.utils;
 
 import com.alibaba.fastjson2.JSONObject;
 import com.xxsword.xitem.admin.constant.ConstantProxy;
+import com.xxsword.xitem.admin.model.JSONDBComm;
 import com.xxsword.xitem.admin.model.proxy.CMDModel;
 import com.xxsword.xitem.admin.model.proxy.JSONDBCommCMD;
 import com.xxsword.xitem.admin.model.proxy.JSONDBCommNetLink;
@@ -101,7 +102,7 @@ public class ProxyUtils {
      *
      * @return
      */
-    public static List<Map<String, Object>> commAssociationJsonFileInfo(List<String[]> commlist) {
+    public static List<Map<String, Object>> commAssociationJsonFileInfo(List<String[]> commlist, Class<?> elementType) {
         List<Map<String, Object>> mapList = new ArrayList<>();
         if (commlist == null) {
             return mapList;
@@ -112,8 +113,8 @@ public class ProxyUtils {
             Map<String, Object> map = new HashMap<>();
             map.put("comm", comms);
             map.put("key", key);
-            JSONDBCommNetLink jsondbCommNetLink = getDBCommNetLink(key);
-            map.put("nodes", jsondbCommNetLink == null ? "" : jsondbCommNetLink.getNotes());
+            JSONDBComm jsondbComm = getDBComm(key, JSONDBComm.class);
+            map.put("nodes", jsondbComm == null ? "" : jsondbComm.getNotes());
             mapList.add(map);
         }
         return mapList;
@@ -137,26 +138,36 @@ public class ProxyUtils {
         return map;
     }
 
-    public static void setDBCommNotesNetLink(String key, String notes) {
-        JSONDBCommNetLink jsondb = getDBCommNetLink(key);
-        if (jsondb == null) {
-            jsondb = new JSONDBCommNetLink();
-            jsondb.setCdate(DateUtil.now());
-        }
-        jsondb.setLdate(DateUtil.now());
-        jsondb.setNotes(notes);
-        JSONDBFileUtil.addJSONObjectToFile(getPath(), key, JSONObject.from(jsondb));
+    /**
+     * 直接拿到控制台过滤后的结果
+     *
+     * @return
+     */
+    public static Map<String, String[]> pid1ToCommMapFast() {
+        return ProxyUtils.pid1ToCommMap(ProxyUtils.handlePSPid1(CommandUtils.commHandle(CommandUtils.comm(ProxyUtils.COMM_PS))));
     }
 
-    public static void setDBCommNotesCMD(String key, String notes) {
-        JSONDBCommCMD jsondb = getDBCommCMD(key);
-        if (jsondb == null) {
-            jsondb = new JSONDBCommCMD();
-            jsondb.setCdate(DateUtil.now());
+    public static void setDBCommNotes(String key, String notes, Class<?> elementType) {
+        if (JSONDBCommCMD.class.isAssignableFrom(elementType)) {
+            JSONDBCommCMD jsondb = getDBComm(key, JSONDBCommCMD.class);
+            if (jsondb == null) {
+                jsondb = new JSONDBCommCMD();
+                jsondb.setCdate(DateUtil.now());
+            }
+            jsondb.setLdate(DateUtil.now());
+            jsondb.setNotes(notes);
+            JSONDBFileUtil.addJSONObjectToFile(getPath(), key, JSONObject.from(jsondb));
         }
-        jsondb.setLdate(DateUtil.now());
-        jsondb.setNotes(notes);
-        JSONDBFileUtil.addJSONObjectToFile(getPath(), key, JSONObject.from(jsondb));
+        if (JSONDBCommNetLink.class.isAssignableFrom(elementType)) {
+            JSONDBCommNetLink jsondb = getDBComm(key, JSONDBCommNetLink.class);
+            if (jsondb == null) {
+                jsondb = new JSONDBCommNetLink();
+                jsondb.setCdate(DateUtil.now());
+            }
+            jsondb.setLdate(DateUtil.now());
+            jsondb.setNotes(notes);
+            JSONDBFileUtil.addJSONObjectToFile(getPath(), key, JSONObject.from(jsondb));
+        }
     }
 
     /**
@@ -167,7 +178,7 @@ public class ProxyUtils {
      * @param comm
      */
     public static void setDBCommNetLink(String key, NetLinkModel netLink, String comm) {
-        JSONDBCommNetLink jsondb = getDBCommNetLink(key);
+        JSONDBCommNetLink jsondb = getDBComm(key, JSONDBCommNetLink.class);
         if (jsondb == null) {
             jsondb = new JSONDBCommNetLink();
             jsondb.setCdate(DateUtil.now());
@@ -196,7 +207,7 @@ public class ProxyUtils {
      * @param comm
      */
     public static void setDBCommCMD(String key, CMDModel cmdModel, String comm) {
-        JSONDBCommCMD jsondb = getDBCommCMD(key);
+        JSONDBCommCMD jsondb = getDBComm(key, JSONDBCommCMD.class);
         if (jsondb == null) {
             jsondb = new JSONDBCommCMD();
             jsondb.setCdate(DateUtil.now());
@@ -219,41 +230,60 @@ public class ProxyUtils {
      * @param key
      * @return
      */
-    public static JSONDBCommNetLink getDBCommNetLink(String key) {
-        JSONObject jsonObject = JSONDBFileUtil.getJSONObjectAllByPath(getPath());
-        if (jsonObject == null) {
-            return null;
+    public static <T> T getDBComm(String key, Class<T> elementType) {
+        if (JSONDBCommCMD.class.isAssignableFrom(elementType)) {
+            JSONObject jsonObject = JSONDBFileUtil.getJSONObjectAllByPath(getPath());
+            if (jsonObject == null) {
+                return null;
+            }
+            JSONDBCommCMD cmd = jsonObject.getObject(key, JSONDBCommCMD.class);
+            return elementType.cast(cmd);
         }
-        return jsonObject.getObject(key, JSONDBCommNetLink.class);
-    }
-
-    public static JSONDBCommCMD getDBCommCMD(String key) {
-        JSONObject jsonObject = JSONDBFileUtil.getJSONObjectAllByPath(getPath());
-        if (jsonObject == null) {
-            return null;
+        if (JSONDBCommNetLink.class.isAssignableFrom(elementType)) {
+            JSONObject jsonObject = JSONDBFileUtil.getJSONObjectAllByPath(getPath());
+            if (jsonObject == null) {
+                return null;
+            }
+            JSONDBCommNetLink netLink = jsonObject.getObject(key, JSONDBCommNetLink.class);
+            return elementType.cast(netLink);
         }
-        return jsonObject.getObject(key, JSONDBCommCMD.class);
+        if (JSONDBComm.class.isAssignableFrom(elementType)) {
+            JSONObject jsonObject = JSONDBFileUtil.getJSONObjectAllByPath(getPath());
+            if (jsonObject == null) {
+                return null;
+            }
+            JSONDBComm cmd = jsonObject.getObject(key, JSONDBComm.class);
+            return elementType.cast(cmd);
+        }
+        return null;
     }
 
     /**
      * 获取所有json db信息
      *
+     * @param dbType JSONDBComm的dbType字段
      * @return
      */
-    public static List<Map<String, Object>> getDBCommALL() {
+    public static List<Map<String, Object>> getDBCommALL(Integer dbType) {
         List<Map<String, Object>> mapList = new ArrayList<>();
         JSONObject jsonObject = JSONDBFileUtil.getJSONObjectAllByPath(getPath());
         if (jsonObject == null) {
             return mapList;
         }
-        Map<String, String[]> mapMD5 = ProxyUtils.pid1ToCommMap(ProxyUtils.handlePSPid1(CommandUtils.commHandle(CommandUtils.comm(ProxyUtils.COMM_PS))));
+        Map<String, String[]> mapMD5 = ProxyUtils.pid1ToCommMapFast();
         for (String key : jsonObject.keySet()) {
             Map<String, Object> map = new HashMap<>();
-            map.put("key", key);
-            JSONDBCommNetLink jsondb = jsonObject.getObject(key, JSONDBCommNetLink.class);
-            map.put("comm", jsondb);
-            map.put("runFlag", mapMD5.containsKey(key) ? 1 : 0);
-            mapList.add(map);
+            JSONDBComm jsondb = jsonObject.getObject(key, JSONDBComm.class);
+            Integer dbT = jsondb.getDbType();
+            if (dbT == null) {
+                dbT = 1;
+            }
+            if (dbT.equals(dbType)) {
+                map.put("key", key);
+                map.put("comm", jsondb);
+                map.put("runFlag", mapMD5.containsKey(key) ? 1 : 0);
+                mapList.add(map);
+            }
         }
         return mapList;
     }
@@ -265,5 +295,35 @@ public class ProxyUtils {
      */
     public static void delDB(String key) {
         JSONDBFileUtil.delJSONObjectToFile(getPath(), key);
+    }
+
+    /**
+     * 检查命令的合法性
+     *
+     * @return
+     */
+    public static boolean checkCmd(String comm) {
+        if (!comm.startsWith("proxy ")) {
+            return false;
+        }
+        if (comm.contains(";")) {
+            return false;
+        }
+        if (comm.contains("&&")) {
+            return false;
+        }
+        if (comm.contains("||")) {
+            return false;
+        }
+        if (comm.contains("(")) {
+            return false;
+        }
+        if (comm.contains(")")) {
+            return false;
+        }
+        if (comm.contains("|")) {
+            return false;
+        }
+        return true;
     }
 }

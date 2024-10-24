@@ -26,20 +26,16 @@
 <body>
 
 <div class="body-div">
-    <div class="border-div">
-        <div>项目名称：${conf.project_name!}</div>
-        <div>${Session.puser.loginName}<a href="${ctx.contextPath}/loginOut">退出登录</a></div>
-    </div>
     <#include "../commons/menu.ftl"/>
     <div class="border-div">
         <button type="button" onclick="addBtn()">新增cmd</button>
     </div>
-    <div class="border-div">
-        控制台进程信息
-        <#list results as item>
-            <p>${item!}</p>
-        </#list>
-    </div>
+<#--    <div class="border-div">-->
+<#--        控制台进程信息-->
+<#--        <#list results as item>-->
+<#--            <p>${item!}</p>-->
+<#--        </#list>-->
+<#--    </div>-->
     <div class="border-div">
         控制台进程信息（过滤）
         <#list resultHandle as results>
@@ -56,7 +52,6 @@
                     ${results.nodes!}
                 </p>
                 <div>
-                    <button type="button" onclick="editBtnNotes('${results.key!}')">编辑备注</button>
                     <button type="button" onclick="stopBtn('${results.key!}')">停止进程</button>
                 </div>
             </div>

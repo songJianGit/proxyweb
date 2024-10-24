@@ -6,6 +6,7 @@ import com.xxsword.xitem.admin.constant.Constant;
 import com.xxsword.xitem.admin.model.Codes;
 import com.xxsword.xitem.admin.model.RestResult;
 import com.xxsword.xitem.admin.model.user.User;
+import com.xxsword.xitem.admin.utils.DateUtil;
 import com.xxsword.xitem.admin.utils.JSONDBFileUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
@@ -51,8 +52,9 @@ public class LoginController extends BaseController {
             JSONObject user = users.getJSONObject(i);
             String name = user.getString("login_name");
             String pwd = user.getString("password");
+            pwd = pwd + DateUtil.now(DateUtil.sdfD4);// 密码随时间，进行动态变化
             if (name.equals(loginName) && passWord.equals(pwd)) {
-                request.getSession().setAttribute(Constant.USER_INFO, new User(name, pwd));
+                request.getSession().setAttribute(Constant.USER_INFO, new User(name, passWord));
                 return RestResult.Codes(Codes.LOGIN_OK);
             }
         }

@@ -19,6 +19,7 @@ public class DateUtil {
     public static final DateTimeFormatter sdfC1 = DateTimeFormat.forPattern("yyyy");
     public static final DateTimeFormatter sdfC2 = DateTimeFormat.forPattern("yyyyMM");
     public static final DateTimeFormatter sdfD3 = DateTimeFormat.forPattern("MM-dd");
+    public static final DateTimeFormatter sdfD4 = DateTimeFormat.forPattern("mm");
 
     public static String now() {
         return new DateTime().toString(sdfA1);
