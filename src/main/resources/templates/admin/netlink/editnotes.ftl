@@ -40,6 +40,7 @@
         $.ajax({
             url: '${ctx.contextPath}/admin/netlink/saveNotes',
             cache: false,
+            type: 'post',
             data: {
                 key: '${comm.key!}',
                 notes: notes

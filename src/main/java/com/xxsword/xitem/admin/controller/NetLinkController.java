@@ -8,6 +8,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 
@@ -49,13 +50,13 @@ public class NetLinkController extends BaseController {
         return "/admin/netlink/editbridge";
     }
 
-    @RequestMapping("saveBridge")
+    @PostMapping("saveBridge")
     @ResponseBody
     public RestResult saveBridge(HttpServletRequest request, NetLinkModel netLink) {
         return runCommAndSaveDB(ProxyUtils.getProxyBridgeStart(netLink), netLink);
     }
 
-    @RequestMapping("save")
+    @PostMapping("save")
     @ResponseBody
     public RestResult save(HttpServletRequest request, NetLinkModel netLink) {
         return runCommAndSaveDB(ProxyUtils.getProxyServerStart(netLink), netLink);
@@ -119,7 +120,7 @@ public class NetLinkController extends BaseController {
         return "/admin/netlink/editnotes";
     }
 
-    @RequestMapping("saveNotes")
+    @PostMapping("saveNotes")
     @ResponseBody
     public RestResult saveNotes(HttpServletRequest request, String key, String notes) {
         ProxyUtils.setDBCommNotes(key, notes, JSONDBCommNetLink.class);

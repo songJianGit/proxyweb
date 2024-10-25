@@ -88,6 +88,7 @@
         $.ajax({
             url: '${ctx.contextPath}/admin/netlink/save',
             cache: false,
+            type: 'post',
             data: {
                 key:'${comm.key!}',
                 serverPort: serverPort,

@@ -41,6 +41,7 @@
         $.ajax({
             url: '${ctx.contextPath}/admin/netlink/saveBridge',
             cache: false,
+            type: 'post',
             data: {
                 bridgePort: bridgePort,
                 notes: notes

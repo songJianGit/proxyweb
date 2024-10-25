@@ -18,7 +18,7 @@
     <div>
         <div class="line-div">
             <label for="cmd">命令</label>
-            <textarea id="cmd" maxlength="500">${comm.cmd!}</textarea>
+            <textarea id="cmd" maxlength="500" rows="3">${comm.cmd!}</textarea>
         </div>
         <div class="line-div">
             <label for="notes">备注</label>
@@ -52,6 +52,7 @@
         $.ajax({
             url: '${ctx.contextPath}/admin/cmd/save',
             cache: false,
+            type: 'post',
             data: {
                 key: '${comm.key!}',
                 cmd: cmd,

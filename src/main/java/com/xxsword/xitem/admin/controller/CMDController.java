@@ -9,8 +9,10 @@ import com.xxsword.xitem.admin.utils.ProxyUtils;
 import com.xxsword.xitem.admin.utils.Utils;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.text.StringEscapeUtils;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 
@@ -47,7 +49,7 @@ public class CMDController extends BaseController {
         return "/admin/cmd/edit";
     }
 
-    @RequestMapping("save")
+    @PostMapping("save")
     @ResponseBody
     public RestResult save(HttpServletRequest request, CMDModel cmdModel) {
         return runCommAndSaveDB(cmdModel);
@@ -63,6 +65,13 @@ public class CMDController extends BaseController {
         String comm = cmdModel.getCmd();
         if (StringUtils.isBlank(comm)) {
             return RestResult.Fail();
+        }
+        comm = StringEscapeUtils.unescapeHtml4(comm);
+        if (!comm.contains("--forever")) {
+            comm += " --forever";// 守护运行
+        }
+        if (!comm.contains("--daemon")) {
+            comm += " --daemon";// 后台运行
         }
         if (!ProxyUtils.checkCmd(comm)) {
             return RestResult.Fail("异常命令(命令不是proxy开头，或者命令中包含了符号 && ; || | ( )");
@@ -111,7 +120,7 @@ public class CMDController extends BaseController {
         return "/admin/cmd/editnotes";
     }
 
-    @RequestMapping("saveNotes")
+    @PostMapping("saveNotes")
     @ResponseBody
     public RestResult saveNotes(HttpServletRequest request, String key, String notes) {
         ProxyUtils.setDBCommNotes(key, notes, JSONDBCommCMD.class);
