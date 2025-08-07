@@ -1,7 +1,10 @@
-package com.xxsword.xitem.admin.model;
+package com.xxsword.xitem.admin.model.proxy;
 
 import lombok.Data;
 
+/**
+ * json文件的基础对象
+ */
 @Data
 public class JSONDBComm {
     private String key;// 主键

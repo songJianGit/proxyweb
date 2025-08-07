@@ -2,7 +2,7 @@ package com.xxsword.xitem.admin.controller;
 
 import com.xxsword.xitem.admin.model.RestResult;
 import com.xxsword.xitem.admin.model.proxy.JSONDBCommCMD;
-import com.xxsword.xitem.admin.model.proxy.CMDModel;
+import com.xxsword.xitem.admin.model.proxy.ProxyCMDModel;
 import com.xxsword.xitem.admin.utils.CommandUtils;
 import com.xxsword.xitem.admin.utils.JSONDBFileUtil;
 import com.xxsword.xitem.admin.utils.ProxyUtils;
@@ -27,16 +27,26 @@ public class CMDController extends BaseController {
 
     @RequestMapping("list")
     public String list(HttpServletRequest request, Model model) {
-        List<String> results = CommandUtils.comm(ProxyUtils.COMM_PS);
         // 控制台
 //        model.addAttribute("results", results);
         // 控制台过滤
-        model.addAttribute("resultHandle", ProxyUtils.commAssociationJsonFileInfo(ProxyUtils.handlePSPid1(CommandUtils.commHandle(results)), JSONDBCommCMD.class));
+        model.addAttribute("resultHandle", ProxyUtils.psProxy());
         // 配置文件
         model.addAttribute("conf", JSONDBFileUtil.getConf());
         // DB信息
         model.addAttribute("proxydb", ProxyUtils.getDBCommALLByDbType(2));
         return "/admin/cmd/list";
+    }
+
+    @RequestMapping("list2")
+    public String list2(HttpServletRequest request, Model model) {
+        // 控制台过滤
+        model.addAttribute("resultHandle", ProxyUtils.psProxy());
+        // 配置文件
+        model.addAttribute("conf", JSONDBFileUtil.getConf());
+        // DB信息
+        model.addAttribute("proxydb", ProxyUtils.getDBCommALLByDbType(2));
+        return "/admin/cmd/list2";
     }
 
     @RequestMapping("edit")
@@ -51,7 +61,7 @@ public class CMDController extends BaseController {
 
     @PostMapping("save")
     @ResponseBody
-    public RestResult save(HttpServletRequest request, CMDModel cmdModel) {
+    public RestResult save(HttpServletRequest request, ProxyCMDModel cmdModel) {
         return runCommAndSaveDB(cmdModel);
     }
 
@@ -61,7 +71,7 @@ public class CMDController extends BaseController {
      * @param cmdModel
      * @return
      */
-    private static RestResult runCommAndSaveDB(CMDModel cmdModel) {
+    private static RestResult runCommAndSaveDB(ProxyCMDModel cmdModel) {
         String comm = cmdModel.getCmd();
         if (StringUtils.isBlank(comm)) {
             return RestResult.Fail();
@@ -79,8 +89,7 @@ public class CMDController extends BaseController {
         if (StringUtils.isBlank(cmdModel.getKey())) {
             CommandUtils.comm(comm, true);// key为空时，为新增，直接运行；key有值时为复制，不运行。
         }
-        String cmd_comm = comm.replaceAll(" --daemon", "").replaceAll("\"", "");
-        ProxyUtils.setDBCommCMD(Utils.getMD5(cmd_comm), cmdModel, comm);
+        ProxyUtils.setDBCommCMD(ProxyUtils.getCmdKeyBy(comm), cmdModel, comm);
         return RestResult.OK();
     }
 

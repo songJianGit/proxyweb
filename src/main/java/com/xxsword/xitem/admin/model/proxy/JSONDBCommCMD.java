@@ -1,6 +1,5 @@
 package com.xxsword.xitem.admin.model.proxy;
 
-import com.xxsword.xitem.admin.model.JSONDBComm;
 import lombok.Data;
 
 /**

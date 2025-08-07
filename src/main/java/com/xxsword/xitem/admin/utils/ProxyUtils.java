@@ -2,11 +2,12 @@ package com.xxsword.xitem.admin.utils;
 
 import com.alibaba.fastjson2.JSONObject;
 import com.xxsword.xitem.admin.constant.ConstantProxy;
-import com.xxsword.xitem.admin.model.JSONDBComm;
-import com.xxsword.xitem.admin.model.proxy.CMDModel;
+import com.xxsword.xitem.admin.model.PSModel;
+import com.xxsword.xitem.admin.model.proxy.JSONDBComm;
+import com.xxsword.xitem.admin.model.proxy.ProxyCMDModel;
 import com.xxsword.xitem.admin.model.proxy.JSONDBCommCMD;
 import com.xxsword.xitem.admin.model.proxy.JSONDBCommNetLink;
-import com.xxsword.xitem.admin.model.proxy.NetLinkModel;
+import com.xxsword.xitem.admin.model.proxy.ProxyNetLinkModel;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 
@@ -64,7 +65,7 @@ public class ProxyUtils {
         return list2;
     }
 
-    public static String getProxyBridgeStart(NetLinkModel netLink) {
+    public static String getProxyBridgeStart(ProxyNetLinkModel netLink) {
         if (netLink.getBridgePort() == null) {
             log.error("bridgePort null");
             return null;
@@ -74,7 +75,7 @@ public class ProxyUtils {
         return comm;
     }
 
-    public static String getProxyServerStart(NetLinkModel netLink) {
+    public static String getProxyServerStart(ProxyNetLinkModel netLink) {
         if (netLink.getServerPort() == null) {
             log.error("serverPort null");
             return null;
@@ -118,22 +119,22 @@ public class ProxyUtils {
      *
      * @return
      */
-    public static List<Map<String, Object>> commAssociationJsonFileInfo(List<String[]> commlist, Class<?> elementType) {
-        List<Map<String, Object>> mapList = new ArrayList<>();
+    public static List<PSModel> commAssociationJsonFileInfo(List<String[]> commlist) {
+        List<PSModel> psModels = new ArrayList<>();
         if (commlist == null) {
-            return mapList;
+            return psModels;
         }
         for (String[] comms : commlist) {
             List<String> comm01 = new ArrayList<>(Arrays.asList(comms).subList(2, comms.length));
-            String key = Utils.getMD5(String.join(" ", comm01));
-            Map<String, Object> map = new HashMap<>();
-            map.put("comm", comms);
-            map.put("key", key);
+            String key = ProxyUtils.getCmdKeyBy(String.join("", comm01));
+            PSModel psModel = new PSModel();
+            psModel.setComm(comm01);
+            psModel.setKey(key);
             JSONDBComm jsondbComm = getDBComm(key, JSONDBComm.class);
-            map.put("nodes", jsondbComm == null ? "" : jsondbComm.getNotes());
-            mapList.add(map);
+            psModel.setNodes(jsondbComm == null ? "" : jsondbComm.getNotes());
+            psModels.add(psModel);
         }
-        return mapList;
+        return psModels;
     }
 
     /**
@@ -149,7 +150,7 @@ public class ProxyUtils {
         }
         for (String[] comms : list) {
             List<String> comm01 = new ArrayList<>(Arrays.asList(comms).subList(2, comms.length));
-            map.put(Utils.getMD5(String.join(" ", comm01)), comms);
+            map.put(ProxyUtils.getCmdKeyBy(String.join("", comm01)), comms);
         }
         return map;
     }
@@ -193,7 +194,7 @@ public class ProxyUtils {
      * @param netLink
      * @param comm
      */
-    public static void setDBCommNetLink(String key, NetLinkModel netLink, String comm) {
+    public static void setDBCommNetLink(String key, ProxyNetLinkModel netLink, String comm) {
         JSONDBCommNetLink jsondb = getDBComm(key, JSONDBCommNetLink.class);
         if (jsondb == null) {
             jsondb = new JSONDBCommNetLink();
@@ -223,7 +224,7 @@ public class ProxyUtils {
      * @param cmdModel
      * @param comm
      */
-    public static void setDBCommCMD(String key, CMDModel cmdModel, String comm) {
+    public static void setDBCommCMD(String key, ProxyCMDModel cmdModel, String comm) {
         JSONDBCommCMD jsondb = getDBComm(key, JSONDBCommCMD.class);
         if (jsondb == null) {
             jsondb = new JSONDBCommCMD();
@@ -367,5 +368,43 @@ public class ProxyUtils {
             return false;
         }
         return true;
+    }
+
+    /**
+     * 正在运行的代理
+     *
+     * @return
+     */
+    public static List<PSModel> psProxy() {
+        return ProxyUtils.commAssociationJsonFileInfo(ProxyUtils.handlePSPid1(CommandUtils.commHandle(CommandUtils.comm(ProxyUtils.COMM_PS))));
+    }
+
+    /**
+     * 获取命令对应的key
+     *
+     * @param comm
+     * @return
+     */
+    public static String getCmdKeyBy(String comm) {
+        return Utils.getMD5(comm.replaceAll(" --daemon", "").replaceAll("\"", "").replaceAll(" ", ""));
+    }
+
+    /**
+     * 检查代理proxy开头的命令是否已经运行
+     *
+     * @return true-正在运行 false-未运行
+     */
+    public static boolean checkCmdRUN(String command) {
+        if (!command.startsWith("proxy")) {
+            return false;
+        }
+        List<PSModel> psModels = ProxyUtils.psProxy();
+        String key = ProxyUtils.getCmdKeyBy(command);
+        for (PSModel psModel : psModels) {
+            if (psModel.getKey().equals(key)) {
+                return true;
+            }
+        }
+        return false;
     }
 }

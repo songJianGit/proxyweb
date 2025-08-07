@@ -51,7 +51,7 @@
                 },
                 success: function (data) {
                     if (data.result) {
-                        window.location.href = '${ctx.contextPath}/admin/netlink/list';
+                        window.location.href = '${ctx.contextPath}/admin/run/runing';
                     } else {
                         layer.msg(data.msg);
                     }

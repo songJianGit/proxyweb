@@ -31,6 +31,10 @@ public class CommandUtils {
         if (StringUtils.isBlank(command)) {
             return null;
         }
+        if (ProxyUtils.checkCmdRUN(command)) {
+            log.warn("该命令已经在运行:{}", command);
+            return null;// 检查其是否已经运行，如果已经在运行，就不再重复执行
+        }
         if (asyn) {
             asyn(command);
             return null;
@@ -90,11 +94,14 @@ public class CommandUtils {
 
     public static List<String> ceShi() {
         List<String> stringList = new ArrayList<>();
-        stringList.add("733       1 /usr/sbin/gssproxy -D");
-        stringList.add("100901       1 proxy bridge -p :33080 -C proxy.crt -K proxy.key --log proxy-bridge.log --forever");
-        stringList.add("100907  100901 proxy bridge -p :33080 -C proxy.crt -K proxy.key --log proxy-bridge.log");
-        stringList.add("100971       1 proxy server -r :34120@:9092 -P 127.0.0.1:33080 -C proxy.crt -K proxy.key --k thinkpadt480s --forever --log proxy-server-34120-9092.log");
-        stringList.add("100978  100971 proxy server -r :34120@:9092 -P 127.0.0.1:33080 -C proxy.crt -K proxy.key --k thinkpadt480s --log proxy-server-34120-9092.log");
+        stringList.add("3886     1 proxy bridge -p :33080 -C proxy.crt -K proxy.key --log proxy-bridge.log --forever");
+        stringList.add("3894  3886 proxy bridge -p :33080 -C proxy.crt -K proxy.key --log proxy-bridge.log");
+        stringList.add("4117     1 proxy server -r :8084@:22 -P 45.125.34.229:33080 -C proxy.crt -K proxy.key --k shuMeiPI --forever --log proxy-server-8084-22.log");
+        stringList.add("4124  4117 proxy server -r :8084@:22 -P 45.125.34.229:33080 -C proxy.crt -K proxy.key --k shuMeiPI --log proxy-server-8084-22.log");
+        stringList.add("20700  9205 java -jar proxyweb-0.0.1-SNAPSHOT.jar --spring.profiles.active=prod");
+        stringList.add("21484     1 proxy server -r :33090@:2123 -P 127.0.0.1:33080 -C /root/goProxy/proxy.crt -K /root/goProxy/proxy.key --k shuMiPI --log /root/goProxy/proxy-server-33090-2123.log --forever");
+        stringList.add("21489 21484 proxy server -r :33090@:2123 -P 127.0.0.1:33080 -C /root/goProxy/proxy.crt -K /root/goProxy/proxy.key --k shuMiPI --log /root/goProxy/proxy-server-33090-2123.log");
+        stringList.add("21974  2332 grep --color=auto proxy");
         return stringList;
     }
 

@@ -43,7 +43,7 @@
         let notes = $("#notes").val();
         let initStart = $("input[name='initStart']:checked").val();
         if (isBlank(initStart)) {
-            initStart = 0;
+            initStart = 1;
         }
         if (isBlank(cmd)) {
             layer.msg("请填写需要执行的命令");

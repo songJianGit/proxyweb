@@ -63,7 +63,7 @@
         let notes = $("#notes").val();
         let initStart = $("input[name='initStart']:checked").val();
         if (isBlank(initStart)) {
-            initStart = 0;
+            initStart = 1;
         }
         if (isBlank(serverPort)) {
             layer.msg("请填写服务器监听端口");
