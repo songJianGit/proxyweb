@@ -35,7 +35,7 @@
                 <p>主键：${db.comm.key!}</p>
                 <p>命令（控制台运行全文）：${db.comm.comm!}</p>
                 <p>备注：${db.comm.notes!}</p>
-                <p>是否跟随java启动时一起启动：
+                <p>java重启时是否启动：
                     <#if db.comm.initStart==1>
                         是
                     <#else>
